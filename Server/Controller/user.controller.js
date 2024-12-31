@@ -14,6 +14,8 @@ const createUser = async (request, response) =>{
                 message:"User already exist"
             })
         }
+        
+
         const user = await userModel.create(data)
         data.password = await bcrypt.hash(user.password,10)
         const token = jwt.sign({sub: user}, "sdjdfjkdfnflsfmkzs", {expiresIn:"2d"})
@@ -30,9 +32,10 @@ const createUser = async (request, response) =>{
     }
 }
 
-const loginUser = async (request,response) =>{
+const loginUser = async (request,response, next) =>{
     try{
         const {name, password} = request.query
+        
         const exist = await userModel.findOne({name})
         if(!exist){
             return response.status(404).send("User not found")
@@ -40,18 +43,21 @@ const loginUser = async (request,response) =>{
         // console.log(email);
         
         // const isPassword = await bcrypt.compare(password, exist.password)
-        const isPassword = await bcrypt.compare(password, exist.password)
+        // const isPassword = await bcrypt.compare(password, exist.password)
         console.log(exist.password);
         console.log(password);
-        console.log(isPassword);
         
-        if(!isPassword){
-            return response.status(400).send("Wrong password")
+        if(password != exist.password){
+            return response.status(400).send({
+                message : "Wrong passwords"
+            })
         }
-        if(email == "apple@gmail.com"){
-            
-        }
+        
+        // if(!isPassword){
+        //     return response.status(400).send("Wrong password")
+        // }
         return response.status(200).send({message : "Logged in"})
+        next()
     }
 
     catch(err){
@@ -60,5 +66,51 @@ const loginUser = async (request,response) =>{
     }
 }
 
-module.exports = {createUser, loginUser}
+const userView = async (req,res) =>{
+    try{
+        const {email} = req.body
+        console.log(email);
+        
+        const result = await userModel.findOne({email})
+        console.log("Read");
+        return res.status(200).send({
+            message : "Details",
+            result
+        })
+    }
+    catch(err){
+        console.log(err);
+        return res.status(500).send({
+            message : "Internal server error"
+        })
+    }
+}
+
+const updateUser = async (req,res) =>{
+    try{
+        const {name, email} = req.body
+        if(!email){
+            res.status(400).send({
+                message : "email Required"
+            })
+        }
+        const exist = await userModel.findOne({email})
+        if(!exist){
+            console.log(exist);
+            res.status(400).send({
+                message : "Not Found"
+            })
+        }
+                // console.log("Update");    
+        const result = await userModel.updateOne({email},{$set : {name}})
+        return res.status(200).send({message: "Name Updated", result})
+    }
+    catch(err){
+        console.log(err);
+        return res.status(500).send({
+            message : "Internal server error"
+        })
+    }
+}
+module.exports = {createUser, loginUser, userView, updateUser}
 

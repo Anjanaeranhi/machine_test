@@ -16,16 +16,3 @@ const connect_Db = async () =>{
 }
 
 module.exports = {connect_Db}
-
-
-// const { connect } = require("mongoose")
-// const connectdb = async () =>{
-//     try{
-//         const {connection} = await connect('mongodb://localhost:27017',{dbName:"sample_db"})
-//         console.log("Hello",connection.db.databaseName);
-//     }
-//     catch(err){
-//         console.log(err);
-//     }
-// }
-// module.exports = {connectdb}
