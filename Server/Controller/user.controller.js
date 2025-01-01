@@ -32,9 +32,9 @@ const createUser = async (request, response) =>{
     }
 }
 
-const loginUser = async (request,response, next) =>{
+const loginUser = async (request,response) =>{
     try{
-        const {name, password} = request.query
+        const {name, password} = request.body
         
         const exist = await userModel.findOne({name})
         if(!exist){
@@ -56,8 +56,9 @@ const loginUser = async (request,response, next) =>{
         // if(!isPassword){
         //     return response.status(400).send("Wrong password")
         // }
-        return response.status(200).send({message : "Logged in"})
-        next()
+        const token = jwt.sign({sub: exist}, "sdjdfjkdfnflsfmkzs", {expiresIn:"2d"})
+        return response.status(200).send({message : "Logged in", token})
+        
     }
 
     catch(err){
@@ -95,6 +96,8 @@ const updateUser = async (req,res) =>{
             })
         }
         const exist = await userModel.findOne({email})
+        console.log("It is update");
+        
         if(!exist){
             console.log(exist);
             res.status(400).send({

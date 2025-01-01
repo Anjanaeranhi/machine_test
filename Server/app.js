@@ -2,6 +2,7 @@ const express = require("express")
 const cors = require("cors")
 const { userRouter } = require("./Route/user.route")
 const { connect_Db } = require("./Config/db.config")
+const { adminRouter } = require("./Route/admin.route")
 
 const app = express()
 
@@ -12,6 +13,7 @@ app.use(cors())
 connect_Db()
 
 app.use("/user",userRouter)
+app.use("/admin", adminRouter)
 
 
 app.listen(8080, (err)=>{
